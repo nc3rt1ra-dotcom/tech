@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Change Your Life</title>
+  <style>
+    /* === Global: elegant dark gradient === */
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: linear-gradient(160deg, #0f1220 0%, #0a0c16 55%, #05060a 100%);
+      color: #c7c9d6;
+      font-family: Arial, Helvetica, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body { -webkit-tap-highlight-color: transparent; }
+
+    .app {
+      width: 100%;
+      height: 100%;
+      background: transparent;
+    }
+
+    .stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* === Typography: academic + elegant === */
+    h1, h2, .eyebrow {
+      font-family: Georgia, "Times New Roman", Times, serif;
+      letter-spacing: 0.02em;
+    }
+
+    h1 {
+      font-weight: normal;
+      font-size: clamp(2.4rem, 7vw, 5.2rem);
+      line-height: 1.1;
+      margin: 0;
+      color: #e8e8f0;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.45);
+    }
+
+    h2 {
+      font-weight: normal;
+      font-size: clamp(1.8rem, 4.5vw, 3.2rem);
+      line-height: 1.15;
+      margin: 0;
+      color: #e8e8f0;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.35);
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.28em;
+      margin: 0;
+      color: #9aa0b8;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .subtext {
+      margin: 12px 0 0;
+      color: #b0b4c5;
+      font-size: 0.95rem;
+    }
+
+    /* === Panels === */
+    .panel {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      opacity: 0;
+      transform: translateX(20px);
+      pointer-events: none;
+      transition: opacity .5s ease, transform .5s ease;
+      background: transparent;
+      color: #c7c9d6;
+    }
+
+    .panel.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .panel.leaving-left {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+
+    .panel.leaving-right {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+
+    /* === Layout === */
+    .center-box,
+    .content-shell {
+      width: min(100%, 780px);
+      text-align: center;
+      color: #c7c9d6;
+    }
+
+    .intro-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+    }
+
+    /* === Buttons: elegant, minimal === */
+    .choice-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      border: 1px solid rgba(255,255,255,0.35);
+      background: rgba(10,12,22,0.55);
+      color: #e8e8f0;
+      padding: 14px 28px;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-family: Arial, Helvetica, sans-serif;
+      cursor: pointer;
+      transition: transform .22s ease, background .22s ease, border-color .22s ease, opacity .22s ease;
+      backdrop-filter: blur(6px);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      background: rgba(10,12,22,0.75);
+      border-color: rgba(255,255,255,0.6);
+    }
+
+    .btn-no {
+      background: rgba(10,12,22,0.35);
+      color: #b0b4c5;
+    }
+
+    .btn-no:hover {
+      background: rgba(255,255,255,0.08);
+      color: #c7c9d6;
+    }
+
+    /* === Poster & QR frames: elegant, subtle === */
+    .poster-frame,
+    .qr-frame {
+      margin: 26px auto 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,0.28);
+      background: rgba(8,10,18,0.6);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.03) inset,
+        0 20px 60px rgba(0,0,0,0.45);
+      backdrop-filter: blur(8px);
+    }
+
+    .poster-frame {
+      width: min(92vw, 740px);
+      aspect-ratio: 16 / 9;
+      border-radius: 18px;
+    }
+
+    .qr-frame {
+      width: min(92vw, 280px);
+      aspect-ratio: 1 / 1;
+      border-radius: 18px;
+    }
+
+    .poster-placeholder,
+    .qr-placeholder {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      color: #c7c9d6;
+      text-decoration: none;
+      text-align: center;
+      padding: 18px;
+    }
+
+    .poster-placeholder span,
+    .qr-placeholder span {
+      font-size: 1.1rem;
+      font-weight: 600;
+      font-family: Georgia, "Times New Roman", Times, serif;
+      color: #e8e8f0;
+    }
+
+    .poster-placeholder small,
+    .qr-placeholder small {
+      display: block;
+      margin-top: 8px;
+      color: #9aa0b8;
+      font-size: 0.85rem;
+    }
+
+    .qr-placeholder {
+      cursor: pointer;
+    }
+
+    /* === Sources === */
+    .sources-shell {
+      text-align: left;
+      color: #c7c9d6;
+    }
+
+    .sources-list {
+      margin-top: 22px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .source-item {
+      padding: 16px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(8,10,18,0.55);
+      color: #c7c9d6;
+      backdrop-filter: blur(6px);
+      font-size: 0.95rem;
+    }
+
+    .source-item span {
+      color: #9aa0b8;
+    }
+
+    /* === Arrows: white, elegant === */
+    .arrow {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.35);
+      background: rgba(10,12,22,0.55);
+      color: #ffffff;
+      font-size: 2rem;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      z-index: 5;
+      transition: background .22s ease, transform .22s ease, opacity .22s ease;
+      backdrop-filter: blur(6px);
+    }
+
+    .arrow:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-50%) scale(1.04);
+    }
+
+    .left-arrow {
+      left: 14px;
+    }
+
+    .right-arrow {
+      right: 14px;
+    }
+
+    /* === Exit overlay === */
+    .exit-overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(0,0,0,0.92);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease;
+    }
+
+    .exit-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .exit-card {
+      text-align: center;
+      padding: 26px;
+      border: 1px solid rgba(255,255,255,0.28);
+      border-radius: 18px;
+      background: rgba(8,10,18,0.8);
+      color: #c7c9d6;
+      backdrop-filter: blur(8px);
+    }
+
+    .exit-card h2 {
+      font-size: 1.9rem;
+      color: #e8e8f0;
+    }
+
+    .exit-card p {
+      color: #9aa0b8;
+      margin: 8px 0 0;
+    }
+
+    /* === Mobile === */
+    @media (max-width: 640px) {
+      .panel {
+        padding: 20px;
+      }
+      .arrow {
+        width: 42px;
+        height: 42px;
+        font-size: 1.8rem;
+      }
+      h1 {
+        max-width: 13ch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <main class="stage" id="stage">
+      <!-- Screen 1: Question -->
+      <section class="panel active" data-panel="0">
+        <div class="center-box intro-box">
+          <p class="eyebrow">A moment of honesty</p>
+          <h1>Are you ready to change your life for the better?</h1>
+          <div class="choice-row">
+            <button class="btn btn-yes" id="yesBtn">Yes</button>
+            <button class="btn btn-no" id="noBtn">No</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: Poster -->
+      <section class="panel" data-panel="1">
+        <button class="arrow left-arrow" aria-label="Previous" data-dir="prev">‹</button>
+        <div class="content-shell">
+          <p class="eyebrow">Step 1</p>
+          <h2>Explore our poster more closely</h2>
+          <div class="poster-frame">
+            <div class="poster-placeholder">
+              <div style="position: relative; width: 100%; height: 0; padding-top: 70.7143%;
+                          padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16);
+                          margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
+                          border-radius: 8px; will-change: transform;">
+                <iframe loading="lazy"
+                        style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0; margin: 0;"
+                        src="https://www.canva.com/design/DAHKI_tNXz0/KZ4FiyDvodhDw1QANAD0Pw/view?embed"
+                        allowfullscreen="allowfullscreen"
+                        allow="fullscreen">
+                </iframe>
+              </div>
+              <a href="https://www.canva.com/design/DAHKI_tNXz0/KZ4FiyDvodhDw1QANAD0Pw/view?utm_content=DAHKI_tNXz0&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link" target="_blank" rel="noopener">
+                Просмотреть дизайн
+              </a>
+            </div>
+          </div>
+        </div>
+        <button class="arrow right-arrow" aria-label="Next" data-dir="next">›</button>
+      </section>
+
+      <!-- Screen 3: QR -->
+      <section class="panel" data-panel="2">
+        <button class="arrow left-arrow" aria-label="Previous" data-dir="prev">‹</button>
+        <div class="content-shell">
+          <p class="eyebrow">Step 2</p>
+          <h2>Take the test and earn a reward</h2>
+          <div class="qr-frame">
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfAn1PttOrvAasGtmxMgOgE11do-vUpRqGv3RBKdl26O7Nbdg/viewform?usp=publish-editor"
+               class="qr-placeholder" id="qrLink" target="_blank" rel="noopener noreferrer" aria-label="QR code link">
+              <span>QR code</span>
+              <small>Отсканируйте, чтобы перейти к опросу</small>
+            </a>
+          </div>
+        </div>
+        <button class="arrow right-arrow" aria-label="Next" data-dir="next">›</button>
+      </section>
+
+      <!-- Screen 4: Sources -->
+      <section class="panel" data-panel="3">
+        <button class="arrow left-arrow" aria-label="Previous" data-dir="prev">‹</button>
+        <div class="content-shell sources-shell">
+          <p class="eyebrow">Final step</p>
+          <h2>Sources</h2>
+          <div class="sources-list">
+            <div class="source-item">Source 1: <span>[add link]</span></div>
+            <div class="source-item">Source 2: <span>[add link]</span></div>
+            <div class="source-item">Source 3: https://share.google/ZM9KUohGAxpL2V6lZ</span></div>
+            <div class="source-item">Source 4: <span>[add link]</span></div>
+          </div>
+        </div>
+        <button class="arrow right-arrow" aria-label="Next" data-dir="next">›</button>
+      </section>
+    </main>
+  </div>
+
+  <div class="exit-overlay" id="exitOverlay" aria-hidden="true">
+    <div class="exit-card">
+      <h2>Maybe another time.</h2>
+      <p>The page will close now.</p>
+    </div>
+  </div>
+
+  <script>
+    const panels = [...document.querySelectorAll('.panel')];
+    const nextBtns = [...document.querySelectorAll('[data-dir="next"]')];
+    const prevBtns = [...document.querySelectorAll('[data-dir="prev"]')];
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const exitOverlay = document.getElementById('exitOverlay');
+    let index = 0;
+    let startX = 0;
+
+    function showPanel(nextIndex, dir = 'next') {
+      if (nextIndex < 0 || nextIndex >= panels.length || nextIndex === index) return;
+
+      const current = panels[index];
+      const next = panels[nextIndex];
+
+      current.classList.remove('active', 'leaving-left', 'leaving-right');
+      next.classList.add('active');
+      next.classList.remove('leaving-left', 'leaving-right');
+      current.classList.add(dir === 'next' ? 'leaving-left' : 'leaving-right');
+
+      index = nextIndex;
+
+      setTimeout(() => {
+        current.classList.remove('leaving-left', 'leaving-right');
+      }, 500);
+    }
+
+    function closePage() {
+      exitOverlay.classList.add('show');
+      setTimeout(() => {
+        window.close();
+        document.body.innerHTML = `
+          <div style="display:grid;place-items:center;height:100vh;background:#05060a;color:#c7c9d6;font-family:Arial,sans-serif;text-align:center;padding:24px;">
+            <div>
+              <h2 style="margin:0 0 12px;font-family:Georgia,Times New Roman,serif;">Maybe another time.</h2>
+              <p style="margin:0;color:#9aa0b8;">You can close this tab now.</p>
+            </div>
+          </div>
+        `;
+      }, 250);
+    }
+
+    nextBtns.forEach(btn => btn.addEventListener('click', () => showPanel(index + 1, 'next')));
+    prevBtns.forEach(btn => btn.addEventListener('click', () => showPanel(index - 1, 'prev')));
+    yesBtn.addEventListener('click', () => showPanel(1, 'next'));
+    noBtn.addEventListener('click', closePage);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') showPanel(index + 1, 'next');
+      if (e.key === 'ArrowLeft') showPanel(index - 1, 'prev');
+      if (e.key === 'Escape') closePage();
+    });
+
+    const stage = document.getElementById('stage');
+
+    stage.addEventListener('touchstart', (e) => {
+      startX = e.changedTouches[0].clientX;
+    }, { passive: true });
+
+    stage.addEventListener('touchend', (e) => {
+      const endX = e.changedTouches[0].clientX;
+      const diff = endX - startX;
+      if (Math.abs(diff) < 40) return;
+      if (diff < 0) showPanel(index + 1, 'next');
+      else showPanel(index - 1, 'prev');
+    }, { passive: true });
+
+    const qrLink = document.getElementById('qrLink');
+    qrLink.addEventListener('click', (e) => {
+      e.currentTarget.href = e.currentTarget.href || 'https://example.com';
+    });
+  </script>
+</body>
+</html>
